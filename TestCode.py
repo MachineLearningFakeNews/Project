@@ -4,8 +4,7 @@ in this folder. it will not be used for final product.
 
 '''
 
-from URLParser import Website
-from newspaper import Article
+import newspaper
 from SiteGrabber import csv_reader
 
 def main():
@@ -17,7 +16,20 @@ def main():
         Create list of sources in CSV file that we can refer to later
 
     '''
-    csv1 = csv_reader('sources.csv')
+
+    # If you run this it will go for a long time as it grabs the top sites from all the sites on the CSV
+    my_data = csv_reader('sources.csv')
+    try:
+        for i in my_data.parsed_data:
+            x = newspaper.build(i)
+            for article in x.articles:
+                print(article.url)
+                #print(i, '\t\t', my_data.parsed_data[i])
+    except:
+        print('Web Error')
+
+    print(my_data.getNotes('FreeBeacon.com'))
+
 
 if __name__ == "__main__":
     main()
