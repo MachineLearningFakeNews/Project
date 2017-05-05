@@ -15,7 +15,6 @@ docker build -t fakenews_ml .
 
 ```sh
 docker run -it -v <ABSOLUTE_PATH_TO_PROJECT>:/root/workspace fakenews_ml /bin/bash
-cd ~/workspace
 
 # For installing libraries, run the following commands: 
 pip install <PACKAGE_NAME>
