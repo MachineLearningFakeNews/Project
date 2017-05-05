@@ -31,5 +31,5 @@ python my_script.py
 ### Running Jupyter
 
 ```sh
-docker run -it -p 8888:8888 -v <ABSOLUTE_PATH_TO_PROJECT>/jupyter_notebooks:/opt/notebooks fakenews_ml
+docker run -it -p 8888:8888 -v <ABSOLUTE_PATH_TO_PROJECT>/jupyter_notebooks:/root/workspace/notebooks fakenews_ml
 ```
