@@ -7,6 +7,7 @@ in this folder. it will not be used for final product.
 import newspaper
 import enchant
 import csv
+import re
 from SiteGrabber import csv_reader, Website
 
 
@@ -45,6 +46,9 @@ def main():
     Article 2
     
      '''
+
+    stripped = lambda s: "".join(i for i in s if 31 < ord(i) < 127)
+    
     with open('dataset.csv', 'w') as csvfile:
         fieldnames = ['Source', 'Type','URL','Title','Authors','Date','Content']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -54,7 +58,7 @@ def main():
             for link_ in site_.siteInfo['Articles']:
                 try:
                     print('Parsing Article to CSV...')
-                    article = newspaper.Article(link_)
+                    article = newspaper.Article(link_, language='en')
                     article.download()
                     article.parse()
 
@@ -62,10 +66,10 @@ def main():
                         'Source': site_.siteInfo['Source'],
                         'Type':   my_data.getTypes(s),
                         'URL':    link_,
-                        'Title':  article.title,
+                        'Title':  stripped(re.sub(r'\n\n|\t', ' ', article.title)),
                         'Authors':article.authors,
                         'Date':   article.publish_date,
-                        'Content':article.text
+                        'Content':stripped(re.sub(r'\n\n|\t', ' ', article.text))
                     })
                 except:
                     print('Err...')
