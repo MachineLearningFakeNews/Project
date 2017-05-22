@@ -10,6 +10,10 @@ import csv
 import re
 from SiteGrabber import csv_reader, Website
 
+def normalize(content):
+    content = re.sub(r'\n+|\t+', ' ', content)
+    content = re.sub(r'\s{2,}', ' ', content)
+    return content
 
 def main():
     '''
@@ -47,33 +51,61 @@ def main():
     
      '''
 
-    stripped = lambda s: "".join(i for i in s if 31 < ord(i) < 127)
-    
     with open('dataset.csv', 'w') as csvfile:
         fieldnames = ['Source', 'Type','URL','Title','Authors','Date','Content']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
+
+        blacklistRE = [
+            re.compile(r'.+\/type\/.*'),
+            re.compile(r'.+\/category\/.*')
+        ]
+
         for s in sources:
             site_ = Website(s)
+            visited_links = {}
             for link_ in site_.siteInfo['Articles']:
+                link_ = re.sub(r'#.*$|\/feed\/*$', '', link_)
+                
+                blacklisted = False
+                for blacklist in blacklistRE:
+                    if blacklist.match(link_):
+                        blacklisted = True
+                        break
+                if blacklisted:
+                    print('Blacklisted')
+                    pass
+
+                print(link_)
+                if (link_ in visited_links):
+                    print('Link visited')
+                    pass
+                
                 try:
                     print('Parsing Article to CSV...')
                     article = newspaper.Article(link_, language='en')
                     article.download()
                     article.parse()
+                except:
+                    print('Failed to get article.')
+                    pass
 
+                content = normalize(article.text)
+                if content:
                     writer.writerow({
                         'Source': site_.siteInfo['Source'],
                         'Type':   my_data.getTypes(s),
                         'URL':    link_,
-                        'Title':  stripped(re.sub(r'\n\n|\t', ' ', article.title)),
+                        'Title':  article.title,
                         'Authors':article.authors,
                         'Date':   article.publish_date,
-                        'Content':stripped(re.sub(r'\n\n|\t', ' ', article.text))
+                        'Content':content
                     })
-                except:
-                    print('Err...')
-                    pass
+                else:
+                    print('No content')
+
+                visited_links[link_] = True
+
             print('New Site. Adding Links...')
     '''    
     site1 = Website(sources[5])
