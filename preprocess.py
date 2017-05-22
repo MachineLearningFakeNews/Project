@@ -8,9 +8,6 @@ def preprocess(content):
   content = unicodedata.normalize('NFC', content).encode('ascii', 'ignore').decode()
   return content
 
-def write_to_file(content):
-  pass
-
 parser = argparse.ArgumentParser(description='Reads a CSV data set and preprocesses the content')
 parser.add_argument('--max_rows', type=int, help='Limit number of data rows to preprocess')
 parser.add_argument('--debug', action='store_true', help='Enable debug print')
