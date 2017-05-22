@@ -48,21 +48,16 @@ def main():
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
-        blacklistRE = re.compile(r'.+\/(?:type|category)\/.*')
+        # Black lists metadata links: /type/, /category/, /feed/, #routes
+        blacklistRE = re.compile(r'.+((\/(?:type|category|feed)\/.*)|(#.*$))')
 
         for s in sources:
             site_ = Website(s)
             visited_links = {}
             for link_ in site_.siteInfo['Articles']:
-                link_ = re.sub(r'#.*$|\/feed\/*$', '', link_)
                 print(link_)
 
-                blacklisted = False
                 if blacklistRE.match(link_):
-                    blacklisted = True
-                    break
-
-                if blacklisted:
                     print('Blacklisted')
                     continue
 
