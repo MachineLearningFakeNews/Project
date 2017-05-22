@@ -5,7 +5,7 @@ in this folder. it will not be used for final product.
 '''
 
 import newspaper
-import enchant
+#import enchant
 import csv
 import re
 from SiteGrabber import csv_reader, Website
@@ -66,7 +66,8 @@ def main():
             visited_links = {}
             for link_ in site_.siteInfo['Articles']:
                 link_ = re.sub(r'#.*$|\/feed\/*$', '', link_)
-                
+                print(link_)
+
                 blacklisted = False
                 for blacklist in blacklistRE:
                     if blacklist.match(link_):
@@ -74,12 +75,11 @@ def main():
                         break
                 if blacklisted:
                     print('Blacklisted')
-                    pass
+                    continue
 
-                print(link_)
                 if (link_ in visited_links):
                     print('Link visited')
-                    pass
+                    continue
                 
                 try:
                     print('Parsing Article to CSV...')
@@ -88,7 +88,7 @@ def main():
                     article.parse()
                 except:
                     print('Failed to get article.')
-                    pass
+                    continue
 
                 content = normalize(article.text)
                 if content:
