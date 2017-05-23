@@ -24,15 +24,17 @@ class Replace_Name_Place():
         <NAME> or <PLACE>
         Reason: prevent mislead weight assignment for names and places
     '''
-    name_holder = "<NAME>"
-    place_holder = "<PLACE>"
-    
+
     def replace_name_place(self):
+        name_holder = "<NAME>"
+        place_holder = "<PLACE>"
+        
         '''
         TODO-NEED TO LOOP TO RUN ALL DATASET
         '''
         #temorary usage
-        content = raw_test_data
+        raw_data = raw_test_data
+        content = raw_data
         content = SpaceTokenizer().tokenize(content)   
         tags = ner_tagger.tag(content)
         
@@ -44,14 +46,18 @@ class Replace_Name_Place():
                 person_list.append(tag[0])
             if(tag[1] == 'LOCATION'):
                 location_list.append(tag[0])
-       
-        #TODO - FIND DUPLICATE NAME AND LOCATION THEN REPLACE WITH HOLDER
+        
+        #Remove duplicate words
+        person_list = list(set(person_list))
+        location_list = list(set(location_list))
     
         for person in person_list:
-            print(person)
+            raw_data = raw_data.replace(person, name_holder)
             
         for location in location_list:
-            print(location)
+            raw_data = raw_data.replace(location, place_holder)
+            
+        print(raw_data)
         
 #for testing
 test = Replace_Name_Place()
