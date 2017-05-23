@@ -1,14 +1,12 @@
 from nltk.tokenize import SpaceTokenizer
-from nltk.tag.stanford import StanfordPOSTagger #StanfordNERTagger
+from nltk.tag.stanford import StanfordNERTagger
 
 #NEED TO SET ENV FOR PROJECT LATER
 
-jar = "libs/stanford-postagger-3.7.0.jar"
-model = "libs/english-left3words-distsim.tagger"
+jar = "libs/stanford-ner.jar"
+classifier = "libs/english.all.3class.distsim.crf.ser.gz"
 
-#POST TAGGER NOT WORK FOR NAME
-
-pos_tagger = StanfordPOSTagger(model, jar, encoding='utf8')
+ner_tagger = StanfordNERTagger(classifier, jar, encoding='utf8')
 
 #more information https://stanfordnlp.github.io/CoreNLP/
 #https://nlp.stanford.edu/software/tagger.shtml#History
@@ -26,8 +24,8 @@ class Replace_Name_Place():
         <NAME> or <PLACE>
         Reason: prevent mislead weight assignment for names and places
     '''
-    name = "<NAME>"
-    place = "<PLACE>"
+    name_holder = "<NAME>"
+    place_holder = "<PLACE>"
     
     def replace_name_place(self):
         '''
@@ -36,11 +34,25 @@ class Replace_Name_Place():
         #temorary usage
         content = raw_test_data
         content = SpaceTokenizer().tokenize(content)   
-        tags = pos_tagger.tag(content)
+        tags = ner_tagger.tag(content)
+        
+        person_list = []
+        location_list = []
         
         for tag in tags:
-            print(tag)
-
+            if(tag[1] == 'PERSON'): 
+                person_list.append(tag[0])
+            if(tag[1] == 'LOCATION'):
+                location_list.append(tag[0])
+       
+        #TODO - FIND DUPLICATE NAME AND LOCATION THEN REPLACE WITH HOLDER
+    
+        for person in person_list:
+            print(person)
+            
+        for location in location_list:
+            print(location)
+        
 #for testing
 test = Replace_Name_Place()
 test.replace_name_place()
