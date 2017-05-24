@@ -8,6 +8,7 @@ import newspaper
 import argparse
 import csv
 import re
+import math
 from SiteGrabber import csv_reader, Website
 
 def normalize(content):
@@ -41,7 +42,7 @@ def main():
     parser = argparse.ArgumentParser(description='Reads a CSV source and builds an data set')
     parser.add_argument('-o', '--out', type=str, help='Dataset CSV filepath', default='dataset.csv')
     parser.add_argument('--source', type=str, help='Source CSV filepath', default='sources.csv')
-    parser.add_argument('--max_per_source', type=int, help='Max articles per source', default=None)
+    parser.add_argument('--max_per_source', type=int, help='Max articles per source', default=math.inf)
     args = parser.parse_args()
 
     # If you run this it will go for a long time as it grabs the top sites from all the sites on the CSV
@@ -74,9 +75,10 @@ def main():
                 
                 try:
                     print('Parsing Article to CSV...')
-                    article = newspaper.Article(link_, language='en')
+                    article = newspaper.Article(link_, language='en', fetch_images=False)
                     article.download()
-                    article.parse()
+                    if article.is_downloaded:
+                        article.parse()
                 except:
                     print('Failed to get article.')
                     continue

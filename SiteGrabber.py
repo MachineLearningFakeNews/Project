@@ -24,7 +24,7 @@ class csv_reader:
                 else:
                     extra_notes = 'No extra notes for website!'
                 temp_dic = {'Type': site_type, 'Notes': extra_notes}
-                json_temp['http://www.' + row['website'].replace(' ','')] = temp_dic
+                json_temp['http://' + row['website'].replace(' ','')] = temp_dic
                 site_type = []
 
         print('Created')
@@ -105,7 +105,7 @@ class Website:
 
     def getArticles(self, url_):
         list = []
-        temp = newspaper.build(url_)
+        temp = newspaper.build(url_, language='en')
         [list.append(article.url) for article in temp.articles]
         return list
 
