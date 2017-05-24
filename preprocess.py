@@ -6,11 +6,51 @@ import csv
 import ast
 from itertools import groupby, zip_longest
 from collections import Counter
+from nltk.tokenize import SpaceTokenizer
+from nltk.tag.stanford import StanfordNERTagger
 
 def preprocess(content):
-  # convert non-ASCII to ASCII equivalents. If none, drop them.
-  content = unicodedata.normalize('NFC', content).encode('ascii', 'ignore').decode()
-  return content
+    # convert non-ASCII to ASCII equivalents. If none, drop them.
+    content = unicodedata.normalize('NFC', content).encode('ascii', 'ignore').decode()
+    #Don't include this method yet. It take too long for execution (2 seconds each loop)
+    #content = replace_name_place(content)
+    return content
+
+def replace_name_place(content):
+    
+    #TO-DO - Improve runtime
+    
+    name_holder = "<NAME>"
+    place_holder = "<PLACE>"
+    
+    jar = "libs/stanford-ner.jar"
+    classifier = "libs/english.all.3class.distsim.crf.ser.gz"
+
+    ner_tagger = StanfordNERTagger(classifier, jar, encoding='utf8')
+
+    tokens = SpaceTokenizer().tokenize(content)
+    tags = ner_tagger.tag(tokens)
+
+    person_list = []
+    location_list = []
+        
+    for tag in tags:
+        if(tag[1] == 'PERSON'): 
+            person_list.append(tag[0])
+        if(tag[1] == 'LOCATION'):
+            location_list.append(tag[0])
+        
+    #Remove duplicate words
+    person_list = list(set(person_list))
+    location_list = list(set(location_list))
+    
+    for person in person_list:
+        content = content.replace(person, name_holder)
+              
+    for location in location_list:
+        content = content.replace(location, place_holder)
+    
+    return content
 
 def expand_type_columns(df):
   keys = ['Type 1', 'Type 2','Type 3']
