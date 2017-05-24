@@ -3,3 +3,4 @@
 __pycache__
 dataset.csv
 trainset.csv
+categorical_data
