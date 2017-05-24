@@ -24,7 +24,11 @@ class csv_reader:
                 else:
                     extra_notes = 'No extra notes for website!'
                 temp_dic = {'Type': site_type, 'Notes': extra_notes}
-                json_temp['http://' + row['website'].replace(' ','')] = temp_dic
+                website = row['website']
+                prefix = 'www.'
+                if website.startswith('www'):
+                    prefix = ''
+                json_temp['http://' + prefix + row['website'].replace(' ','')] = temp_dic
                 site_type = []
 
         print('Created')
