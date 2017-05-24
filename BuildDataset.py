@@ -5,7 +5,7 @@ in this folder. it will not be used for final product.
 '''
 
 import newspaper
-#import enchant
+import argparse
 import csv
 import re
 from SiteGrabber import csv_reader, Website
@@ -38,22 +38,34 @@ def main():
 
     '''
 
-    # If you run this it will go for a long time as it grabs the top sites from all the sites on the CSV
-    my_data = csv_reader('sources.csv')
-    sources = my_data.getSources()
-    dataset_final = {}  
+    parser = argparse.ArgumentParser(description='Reads a CSV source and builds an data set')
+    parser.add_argument('-o', '--out', type=str, help='Dataset CSV filepath', default='dataset.csv')
+    parser.add_argument('--source', type=str, help='Source CSV filepath', default='sources.csv')
+    parser.add_argument('--max_per_source', type=int, help='Max articles per source', default=None)
+    args = parser.parse_args()
 
-    with open('dataset.csv', 'w') as csvfile:
+    # If you run this it will go for a long time as it grabs the top sites from all the sites on the CSV
+    my_data = csv_reader(args.source)
+    sources = my_data.getSources()
+    titles = set()
+
+    with open(args.out, 'w') as csvfile:
         fieldnames = ['Source', 'Type','URL','Title','Authors','Date','Content']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
-        # Black lists metadata links: /type/, /category/, /feed/, #routes
-        blacklistRE = re.compile(r'.+((\/(?:type|category|feed)\/.*)|(#.*$))')
+        # Black lists metadata and action links: /type/, /category/, /feed/, #routes, ?share=
+        blacklistRE = re.compile(r'.+((\/(?:type|category|feed)\/.*)|(#.*|\?share=.+$))')
 
         for s in sources:
             site_ = Website(s)
+            count = 0
             for link_ in site_.siteInfo['Articles']:
+
+                if count >= args.max_per_source:
+                    print('Source Done')
+                    break
+
                 print(link_)
 
                 if blacklistRE.match(link_):
@@ -69,11 +81,16 @@ def main():
                     print('Failed to get article.')
                     continue
 
-                if article.authors == []:
+                content = normalize(article.text)
+
+                if article.title in titles:
+                    print('Article was already processed')
+                    continue
+
+                if len(content) < 30 and article.authors == []:
                     print('No authors, skipped.')
                     continue
 
-                content = normalize(article.text)
                 if content:
                     writer.writerow({
                         'Source': site_.siteInfo['Source'],
@@ -84,6 +101,8 @@ def main():
                         'Date':   article.publish_date,
                         'Content':content
                     })
+                    titles.add(article.title)
+                    count += 1
                 else:
                     print('No content')
 
