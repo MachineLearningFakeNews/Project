@@ -32,16 +32,18 @@ def balance_one_vs_all(df, type_label):
   return df
 
 parser = argparse.ArgumentParser(description='Reads a CSV data set and preprocesses the content')
+parser.add_argument('-o', '--out', type=str, help='Preprocessed CSV filepath', default='dataset_preprocessed.csv')
+parser.add_argument('--data', type=str, help='Dataset CSV filepath', default='dataset.csv')
 parser.add_argument('--rows', type=int, help='Sample number of data rows to preprocess')
 parser.add_argument('--debug', action='store_true', help='Enable debug print')
 args = parser.parse_args()
 
-with open('trainset.csv', 'w') as csvfile:
+with open(args.out, 'w') as csvfile:
   fieldnames = ['Source','Type 1','Type 2','Type 3','URL','Title','Authors','Date','Content']
   writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
   writer.writeheader()
 
-  df = pd.read_csv('dataset.csv')
+  df = pd.read_csv(args.data)
 
   if args.rows:
     df = df.sample(n=args.rows, random_state=42)
