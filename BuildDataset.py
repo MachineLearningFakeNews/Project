@@ -53,16 +53,11 @@ def main():
 
         for s in sources:
             site_ = Website(s)
-            visited_links = {}
             for link_ in site_.siteInfo['Articles']:
                 print(link_)
 
                 if blacklistRE.match(link_):
                     print('Blacklisted')
-                    continue
-
-                if (link_ in visited_links):
-                    print('Link visited')
                     continue
                 
                 try:
@@ -72,6 +67,10 @@ def main():
                     article.parse()
                 except:
                     print('Failed to get article.')
+                    continue
+
+                if article.authors == []:
+                    print('No authors, skipped.')
                     continue
 
                 content = normalize(article.text)
@@ -87,8 +86,6 @@ def main():
                     })
                 else:
                     print('No content')
-
-                visited_links[link_] = True
 
             print('New Site. Adding Links...')
 
