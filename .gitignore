@@ -3,5 +3,6 @@
 __pycache__
 dataset.csv
 dataset_preprocessed.csv
+domain_frequency.csv
 trainset.csv
 categorical_data
