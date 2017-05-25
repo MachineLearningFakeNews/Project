@@ -22,8 +22,7 @@ args = parser.parse_args()
 def preprocess(content):
     # convert non-ASCII to ASCII equivalents. If none, drop them.
     content = unicodedata.normalize('NFC', content).encode('ascii', 'ignore').decode()
-    #Don't include this method yet. It take too long for execution (2 seconds each loop)
-    #content = replace_name_place(content)
+    content = replace_name_place(content)
     return content
 
 def replace_name_place(content):
@@ -35,6 +34,7 @@ def replace_name_place(content):
         
     '''
     
+    tokens = nlp(content)
     
     name_holder = "<NAME>"
     place_holder = "<PLACE>"
@@ -42,23 +42,23 @@ def replace_name_place(content):
     person_list = []
     location_list = []
     
-    doc = nlp(content)
-    
-    for ent in doc.ents:
-        if(ent.ent_type_ == 'PERSON'):
-            person_list.append(ent.text)
-        if(ent.ent_type_ == 'GPE'):
-            location_list.append(ent.text)
+    for token in tokens:
+        if(token.ent_type_ == 'PERSON'):
+            person_list.append(token.text)
+        if(token.ent_type_ == 'GPE'):
+            location_list.append(token.text)
     
     #Remove duplicate words
     person_list = list(set(person_list))
     location_list = list(set(location_list))
-    
+
     for person in person_list:
         content = content.replace(person, name_holder)
               
     for location in location_list:
         content = content.replace(location, place_holder)
+    
+    print(content)
     
     return content
 
