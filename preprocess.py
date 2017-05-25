@@ -57,9 +57,7 @@ def replace_name_place(content):
               
     for location in location_list:
         content = content.replace(location, place_holder)
-    
-    print(content)
-    
+   
     return content
 
 def get_type_columns(df):
