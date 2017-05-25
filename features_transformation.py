@@ -53,7 +53,7 @@ class Replace_Name_Place():
     
         for person in person_list:
             raw_data = raw_data.replace(person, name_holder)
-            
+              
         for location in location_list:
             raw_data = raw_data.replace(location, place_holder)
             

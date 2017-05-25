@@ -4,10 +4,11 @@ import pandas as pd
 import unicodedata
 import csv
 import ast
+import spacy
 from itertools import groupby, zip_longest
 from collections import Counter
-from nltk.tokenize import SpaceTokenizer
-from nltk.tag.stanford import StanfordNERTagger
+
+nlp = spacy.load('en')
 
 def preprocess(content):
     # convert non-ASCII to ASCII equivalents. If none, drop them.
@@ -18,28 +19,28 @@ def preprocess(content):
 
 def replace_name_place(content):
     
-    #TO-DO - Improve runtime
+    '''
+        Spacy Build-in entity types
+        PERSON - People, including fictional.
+        GPE - Countries, cities, states.
+        
+    '''
+    
     
     name_holder = "<NAME>"
     place_holder = "<PLACE>"
     
-    jar = "libs/stanford-ner.jar"
-    classifier = "libs/english.all.3class.distsim.crf.ser.gz"
-
-    ner_tagger = StanfordNERTagger(classifier, jar, encoding='utf8')
-
-    tokens = SpaceTokenizer().tokenize(content)
-    tags = ner_tagger.tag(tokens)
-
     person_list = []
     location_list = []
-        
-    for tag in tags:
-        if(tag[1] == 'PERSON'): 
-            person_list.append(tag[0])
-        if(tag[1] == 'LOCATION'):
-            location_list.append(tag[0])
-        
+    
+    doc = nlp(content)
+    
+    for ent in doc.ents:
+        if(ent.ent_type_ == 'PERSON'):
+            person_list.append(ent.text)
+        if(ent.ent_type_ == 'GPE'):
+            location_list.append(ent.text)
+    
     #Remove duplicate words
     person_list = list(set(person_list))
     location_list = list(set(location_list))
