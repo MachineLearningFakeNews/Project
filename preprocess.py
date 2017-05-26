@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 from itertools import groupby, zip_longest
 from collections import Counter
 from sklearn.feature_extraction.stop_words import ENGLISH_STOP_WORDS
+from nltk.tokenize import SpaceTokenizer
 
 nlp = spacy.load('en')
 
@@ -26,22 +27,102 @@ args = parser.parse_args()
 def preprocess(content):
     # convert non-ASCII to ASCII equivalents. If none, drop them.
     content = unicodedata.normalize('NFC', content).encode('ascii', 'ignore').decode()
+    
     content = nlp_preprocess(content)
     return content
 
 def nlp_preprocess(content):
     
-    tokens = nlp(content)
+    #PERSON, NORP, FACILITY, ORG, GPE, LOC, PRODUCT, EVENT, WORK_OF_ART, LANGUAGE
+    
+    place_holders = ['<PERSON>', '<NORP>', '<FACILITY>', '<ORG>', '<GPE>', '<LOC>', '<PRODUCT>', '<EVENT>', '<WORK_OF_ART>', '<LANGUAGE>']
+    
+    person_list = []
+    norp_list = []
+    facility_list = []
+    org_list = []
+    gpe_list = []
+    loc_list = []
+    product_list = []
+    event_list = []
+    work_of_art_list = []
+    language_list = []
+    
     result = []
     
+    '''
     for token in tokens:
         result.append(token.text.lower() if token.ent_type_ == "" else "<{}>".format(token.ent_type_))
-  
+    '''
+    tokens = nlp(content)
+    
+    for ent in tokens.ents:
+        if ent.label_ == 'PERSON':
+            person_list.append(ent.text)
+        elif ent.label_ == 'NORP':
+            norp_list.append(ent.text)
+        elif ent.label_ == 'FACILITY':
+            facility_list.append(ent.text)
+        elif ent.label_ == 'ORG':
+            org_list.append(ent.text)
+        elif ent.label_ == 'GPE':
+            gpe_list.append(ent.text)
+        elif ent.label_ == 'LOC':
+            loc_list.append(ent.text)
+        elif ent.label_ == 'PRODUCT':
+            product_list.append(ent.text)
+        elif ent.label_ == 'EVENT':
+            event_list.append(ent.text)
+        elif ent.label_ == 'WORK_OF_ART':
+            work_of_art_list.append(ent.text)
+        elif ent.label_ == 'LANGUAGE':
+            language_list.append(ent.text)
+            
+    person_list = list(set(person_list))
+    norp_list = list(set(norp_list))
+    facility_list = list(set(facility_list))
+    org_list = list(set(org_list))
+    gpe_list = list(set(gpe_list))
+    loc_list = list(set(loc_list))
+    product_list = list(set(product_list))
+    event_list = list(set(event_list))
+    work_of_art_list = list(set(work_of_art_list))
+    language_list = list(set(language_list))
+    
+    
+    for person in person_list:
+        content = content.replace(person, "<PERSON>")	
+    for norp in norp_list:
+        content = content.replace(norp, "<NORP>")	
+    for facility in facility_list:
+        content = content.replace(facility, "<FACILITY>")	
+    for org in org_list:
+        content = content.replace(org, "<ORG>")	
+    for gpe in gpe_list:
+        content = content.replace(gpe, "<GPE>")	
+    for loc in loc_list:
+        content = content.replace(loc, "<LOC>")	
+    for product in product_list:
+        content = content.replace(product, "<PRODUCT>")	
+    for event in event_list:
+        content = content.replace(event, "<EVENT>")	
+    for work in work_of_art_list:
+        content = content.replace(work, "<WORK_OF_ART>")	
+    for lang in language_list:
+        content = content.replace(lang, "<LANGUAGE>")	
+        
+   
+    tokens = SpaceTokenizer().tokenize(content)
+
+    for token in tokens: 
+        result.append(token.lower().strip() if token not in place_holders else token)
+        
+    #result = [token.lower().strip() for token in result if token not in place_holders]
+    
     result = [token for token in result if token not in STOPWORDS]
     result = [token for token in result if token not in UNUSE_SYMBOLS]
 
     content  = " ".join(result)
-   
     return content
 
 def get_type_columns(df):
