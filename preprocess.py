@@ -6,11 +6,18 @@ import csv
 import ast
 import spacy
 import re
+import string
 from urllib.parse import urlparse
 from itertools import groupby, zip_longest
 from collections import Counter
+from sklearn.feature_extraction.stop_words import ENGLISH_STOP_WORDS
 
 nlp = spacy.load('en')
+
+STOPWORDS = list(ENGLISH_STOP_WORDS)
+UNUSED_SYMBOLS = ['[', ']', '(', ')', '_']
+PUNCTUATIONS = ' '.join(string.punctuation).split()
+entityRE = re.compile(r'<(.+)>')
 
 parser = argparse.ArgumentParser(description='Reads a CSV data set and preprocesses the content')
 parser.add_argument('-o', '--out', type=str, help='Preprocessed CSV filepath', default='dataset_preprocessed.csv')
@@ -22,42 +29,31 @@ args = parser.parse_args()
 def preprocess(content):
     # convert non-ASCII to ASCII equivalents. If none, drop them.
     content = unicodedata.normalize('NFC', content).encode('ascii', 'ignore').decode()
-    content = replace_name_place(content)
+    content = nlp_preprocess(content)
     return content
 
-def replace_name_place(content):
-    
-    '''
-        Spacy Build-in entity types
-        PERSON - People, including fictional.
-        GPE - Countries, cities, states.
-        
-    '''
-    
-    tokens = nlp(content)
-    
-    name_holder = "<NAME>"
-    place_holder = "<PLACE>"
-    
-    person_list = []
-    location_list = []
-    
-    for token in tokens:
-        if(token.ent_type_ == 'PERSON'):
-            person_list.append(token.text)
-        if(token.ent_type_ == 'GPE'):
-            location_list.append(token.text)
-    
-    #Remove duplicate words
-    person_list = list(set(person_list))
-    location_list = list(set(location_list))
+def nlp_preprocess(content):
+    for symbol in UNUSED_SYMBOLS:
+      content = content.replace(symbol, ' ')
 
-    for person in person_list:
-        content = content.replace(person, name_holder)
-              
-    for location in location_list:
-        content = content.replace(location, place_holder)
-   
+    for symbol in PUNCTUATIONS:
+      content = content.replace(' ' + symbol, ' ')
+      content = content.replace(symbol + ' ', ' ')
+
+    doc = nlp(content)
+    placeholders = set()
+    for ent in doc.ents:
+      placeholders.add(ent.label_)
+      text = ent.text.strip()
+      if text:
+        content = content.replace(' %s ' % text, ' <%s> ' % ent.label_, 1)
+
+    tokens = content.split()
+
+    result = [token if placeholders.issuperset(entityRE.findall(token)) else token.lower() for token in tokens]
+    result = [token for token in result if token not in STOPWORDS]
+
+    content = ' '.join(result)
     return content
 
 def get_type_columns(df):
