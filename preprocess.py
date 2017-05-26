@@ -6,6 +6,7 @@ import csv
 import ast
 import spacy
 import re
+import string
 from urllib.parse import urlparse
 from itertools import groupby, zip_longest
 from collections import Counter
@@ -14,7 +15,8 @@ from sklearn.feature_extraction.stop_words import ENGLISH_STOP_WORDS
 nlp = spacy.load('en')
 
 STOPWORDS = list(ENGLISH_STOP_WORDS)
-UNUSE_SYMBOLS = ['"']
+UNUSED_SYMBOLS = ['[', ']', '(', ')', '_']
+PUNCTUATIONS = ' '.join(string.punctuation).split()
 entityRE = re.compile(r'<(.+)>')
 
 parser = argparse.ArgumentParser(description='Reads a CSV data set and preprocesses the content')
@@ -27,23 +29,24 @@ args = parser.parse_args()
 def preprocess(content):
     # convert non-ASCII to ASCII equivalents. If none, drop them.
     content = unicodedata.normalize('NFC', content).encode('ascii', 'ignore').decode()
-    content = content.replace(' .', '.')
-    content = content.replace('....', '...')
     content = nlp_preprocess(content)
     return content
 
 def nlp_preprocess(content):
-    doc = nlp(content)
+    for symbol in UNUSED_SYMBOLS:
+      content = content.replace(symbol, ' ')
 
+    for symbol in PUNCTUATIONS:
+      content = content.replace(' ' + symbol, ' ')
+      content = content.replace(symbol + ' ', ' ')
+
+    doc = nlp(content)
     placeholders = set()
     for ent in doc.ents:
       placeholders.add(ent.label_)
       text = ent.text.strip()
       if text:
         content = content.replace(' %s ' % text, ' <%s> ' % ent.label_, 1)
-
-    for symbol in UNUSE_SYMBOLS:
-      content.replace(symbol, '')
 
     tokens = content.split()
 
