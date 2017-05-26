@@ -10,7 +10,6 @@ from urllib.parse import urlparse
 from itertools import groupby, zip_longest
 from collections import Counter
 from sklearn.feature_extraction.stop_words import ENGLISH_STOP_WORDS
-from nltk.tokenize import SpaceTokenizer
 
 nlp = spacy.load('en')
 
@@ -41,9 +40,9 @@ def nlp_preprocess(content):
       placeholders.add(ent.label_)
       text = ent.text.strip()
       if text:
-        content = content.replace(' %s ' % text, ' <%s> ' % ent.label_)
+        content = content.replace(' %s ' % text, ' <%s> ' % ent.label_, 1)
 
-    tokens = SpaceTokenizer().tokenize(content)
+    tokens = content.split(' ')
 
     result = [token if placeholders.issuperset(entityRE.findall(token)) else token.lower() for token in tokens]
     result = [token for token in result if token not in STOPWORDS]
