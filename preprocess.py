@@ -42,13 +42,15 @@ def nlp_preprocess(content):
       if text:
         content = content.replace(' %s ' % text, ' <%s> ' % ent.label_, 1)
 
-    tokens = content.split(' ')
+    for symbol in UNUSE_SYMBOLS:
+      content.replace(symbol, '')
+
+    tokens = content.split()
 
     result = [token if placeholders.issuperset(entityRE.findall(token)) else token.lower() for token in tokens]
     result = [token for token in result if token not in STOPWORDS]
-    result = [token for token in result if token not in UNUSE_SYMBOLS]
 
-    content = " ".join(result)
+    content = ' '.join(result)
     return content
 
 def get_type_columns(df):
