@@ -31,12 +31,7 @@ def preprocess(content):
 
 def nlp_preprocess(content):
     
-   
     tokens = nlp(content)
-    
-    person_list = []
-    location_list = []
-
     result = []
     
     for token in tokens:
