@@ -7,7 +7,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 
 
-df = pd.read_csv('dataset.csv', index_col=False)
+df = pd.read_csv('dataset_preprocessed.csv', index_col=False)
 
 articles = df['Content']
 
