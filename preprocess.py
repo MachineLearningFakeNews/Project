@@ -23,7 +23,7 @@ parser = argparse.ArgumentParser(description='Reads a CSV data set and preproces
 parser.add_argument('-o', '--out', type=str, help='Preprocessed CSV filepath', default='dataset_preprocessed.csv')
 parser.add_argument('--data', type=str, help='Dataset CSV filepath', default='dataset.csv')
 parser.add_argument('--rows', type=int, help='Sample number of data rows to preprocess')
-parser.add_argument('--debug', action='store_true', help='Enable debug print')
+parser.add_argument('--verbose', type=int, help='Enables verbosity of console output', default=1)
 args = parser.parse_args()
 
 def preprocess(content):
@@ -56,22 +56,18 @@ def nlp_preprocess(content):
     content = ' '.join(result)
     return content
 
-def get_type_columns(df):
+def expand_type_columns(df):
   df = pd.DataFrame.copy(df)
   keys = ['Type 1', 'Type 2','Type 3']
   types = np.array([list(types.values()) for types in [dict(zip_longest(keys, ast.literal_eval(row.lower().replace('fake news', 'fake')))) for row in df['Type']]])
-  type_columns = dict(zip(keys, types.T))
-  for key in keys:
-    df[key] = type_columns[key]
-  del df['Type']
-  return df
+  return df.join(pd.DataFrame(dict(zip(keys, types.T))))
 
 def print_type_frequency(df):
   cat_frequency = Counter()
   for row in df['Type']:
     cat_frequency.update([label.strip() for label in ast.literal_eval(row.lower().replace('fake news', 'fake'))])
 
-  print('Type Frequency:')
+  print('\nType Frequency:')
   for key, value in cat_frequency.most_common():
     print('%12s %12s' % (key, value))
 
@@ -81,22 +77,36 @@ def write_domain_frequency(domain_frequency):
     for key, value in domain_frequency.most_common():
       csvfile.write('%s,%s\n' % (key, value))
 
-def balance_data(df, query_split):
-  first = df[df.isin(query_split)]
-  second = df[~df.isin(first)]
-  return df[df.isin(first) | df.isin(second)]
+def balance_data(df, first):
+  print('Set 1 size: ', first.shape[0])
+  second = df[~df.index.isin(first.index)]
+  print('Set 2 size: ', second.shape[0])
+  second = second.sample(n=first.shape[0])
+  return pd.concat([first, second])
 
 def __main__():
   df = pd.read_csv(args.data)
 
   if args.rows:
     df = df.sample(n=args.rows, random_state=42)
-  
-  print('Preprocessing...')
+
+  df = expand_type_columns(df)
+  qType1 = df['Type 1']
+  qType2 = df['Type 2']
+  qType3 = df['Type 3']
+  reliable = df[
+    ((qType1 == 'reliable') | (qType2 == 'reliable') | (qType3 == 'reliable')) |
+    ((qType1 == 'political') & qType2.isnull() & qType3.isnull())
+  ]
+
+  print_type_frequency(df)
+  print('\nBalance between reliable (Set 1) and unreliable (Set 2) data')
+  balanced = balance_data(df, reliable)
+  print('\nPreprocessing...')
 
   domain_frequency = Counter()
   prevTotal = df.shape[0]
-  for index, row in df.iterrows():
+  for index, row in balanced.iterrows():
     source = row['Source']
     types = row['Type']
     url = row['URL']
@@ -112,7 +122,7 @@ def __main__():
 
     row['Content'] = article_content
 
-    if args.debug:
+    if args.verbose > 1:
       print('\nSource: ', source)
       print('Type: ', types)
       print('URL: ', url)
@@ -121,22 +131,16 @@ def __main__():
       print('Date: ', publish_date)
       print('Content:\n',  article_content, '\n')
 
-  types = get_type_columns(df)
-  qType1 = types['Type 1']
-  qType2 = types['Type 2']
-  qType3 = types['Type 3']
-
-  reliable = types[((qType1 == 'reliable') | (qType2 == 'reliable') | (qType3 == 'reliable'))]
-  balanced = balance_data(types, reliable)
-
-  print('\nSummary')
-  print_type_frequency(df)
-  print('')
   print('\n[Total] Before:', df.shape[0], ' After:', balanced.shape[0])
   print('')
-  if args.debug:
+  if args.verbose > 0:
     write_domain_frequency(domain_frequency)
+    print('')
 
+  df = balanced
+  del df['Type 1']
+  del df['Type 2']
+  del df['Type 3']
   df.to_csv(args.out, index=False)
 
 if __name__ == "__main__":
