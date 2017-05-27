@@ -35,5 +35,4 @@ tf_idf_matrix = tfidf.transform(freq_term_matrix)
 
 print (tf_idf_matrix.shape)
 
-trainset = pd.DataFrame(tf_idf_matrix.todense())
-trainset.to_csv("trainset.csv")
+np.savez('trainset',data=tf_idf_matrix.data, indices=tf_idf_matrix.indices, indptr=tf_idf_matrix.indptr, shape=tf_idf_matrix.shape)
