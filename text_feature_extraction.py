@@ -21,7 +21,7 @@ count_vectorizer.fit_transform(df['Content'])
 freq_term_matrix = count_vectorizer.transform(df['Content'])
 
 print ("shape: ", freq_term_matrix.shape)
-print (freq_term_matrix.todense())
+# print (freq_term_matrix.todense())
 
 
 # calculate tf-idf wieghts
@@ -31,7 +31,7 @@ tfidf.fit(freq_term_matrix)
 # transforms to tf-idf weight matrix
 tf_idf_matrix = tfidf.transform(freq_term_matrix)
 
-print (tf_idf_matrix.todense())
+# print (tf_idf_matrix.todense())
 
 print (tf_idf_matrix.shape)
 
