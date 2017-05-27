@@ -77,11 +77,13 @@ def write_domain_frequency(domain_frequency):
     for key, value in domain_frequency.most_common():
       csvfile.write('%s,%s\n' % (key, value))
 
-def balance_data(df, first):
+def balance_data(df, first, cat1, cat2):
   print('Set 1 size: ', first.shape[0])
   second = df[~df.index.isin(first.index)]
   print('Set 2 size: ', second.shape[0])
   second = second.sample(n=first.shape[0])
+  first['Label'] = cat1
+  second['Label'] = cat2
   return pd.concat([first, second])
 
 def __main__():
@@ -101,7 +103,7 @@ def __main__():
 
   print_type_frequency(df)
   print('\nBalance between reliable (Set 1) and unreliable (Set 2) data')
-  balanced = balance_data(df, reliable)
+  balanced = balance_data(df, reliable, 'reliable', 'unreliable')
   print('\nPreprocessing...')
 
   domain_frequency = Counter()
@@ -114,6 +116,7 @@ def __main__():
     authors = row['Authors']
     publish_date = row['Date']
     article_content = row['Content']
+    label = row['Label']
     
     url = urlparse(url)
     domain_frequency.update([url.hostname])
@@ -129,7 +132,8 @@ def __main__():
       print('Title: ', title)
       print('Authors: ', authors)
       print('Date: ', publish_date)
-      print('Content:\n',  article_content, '\n')
+      print('Content:\n',  article_content)
+      print('Label:', label, '\n')
 
   print('\n[Total] Before:', df.shape[0], ' After:', balanced.shape[0])
   print('')
