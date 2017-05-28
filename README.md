@@ -1,5 +1,6 @@
-# Project
-Repo for all Project Files
+# SVM Classifier Project
+
+Classifies articles into two categories: reliable (non bias political, credible) or unreliable. We scrapped articles from ([OpenSources](http://www.opensources.co/)).
 
 ## Docker Environment
 
@@ -30,5 +31,5 @@ python my_script.py
 ### Running Jupyter
 
 ```sh
-docker run -it -p 8888:8888 -v <ABSOLUTE_PATH_TO_PROJECT>/jupyter_notebooks:/root/workspace/notebooks fakenews_ml
+docker run -it -p 8888:8888 -v <ABSOLUTE_PATH_TO_PROJECT>:/root/workspace -v <ABSOLUTE_PATH_TO_PROJECT>/jupyter_notebooks:/root/workspace/notebooks fakenews_ml
 ```
