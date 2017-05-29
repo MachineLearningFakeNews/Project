@@ -24,6 +24,7 @@ parser.add_argument('-o', '--out', type=str, help='Preprocessed CSV filepath', d
 parser.add_argument('--data', type=str, help='Dataset CSV filepath', default='dataset.csv')
 parser.add_argument('--rows', type=int, help='Sample number of data rows to preprocess')
 parser.add_argument('--verbose', type=int, help='Enables verbosity of console output', default=1)
+parser.add_argument('--balanced_sample', type=bool, help='Balance the dataset by subsampling', default=False)
 args = parser.parse_args()
 
 def preprocess(content):
@@ -77,11 +78,12 @@ def write_domain_frequency(domain_frequency):
     for key, value in domain_frequency.most_common():
       csvfile.write('%s,%s\n' % (key, value))
 
-def balance_data(df, first, cat1, cat2):
+def label_data(df, first, cat1, cat2):
   print('Set 1 size: ', first.shape[0])
   second = df[~df.index.isin(first.index)]
   print('Set 2 size: ', second.shape[0])
-  second = second.sample(n=first.shape[0])
+  if args.balanced_sample:
+    second = second.sample(n=first.shape[0])
   first['Label'] = cat1
   second['Label'] = cat2
   return pd.concat([first, second])
@@ -103,12 +105,12 @@ def __main__():
 
   print_type_frequency(df)
   print('\nBalance between reliable (Set 1) and unreliable (Set 2) data')
-  balanced = balance_data(df, reliable, 'reliable', 'unreliable')
+  labeled = label_data(df, reliable, 'reliable', 'unreliable')
   print('\nPreprocessing...')
 
   domain_frequency = Counter()
   prevTotal = df.shape[0]
-  for index, row in balanced.iterrows():
+  for index, row in labeled.iterrows():
     source = row['Source']
     types = row['Type']
     url = row['URL']
@@ -135,13 +137,13 @@ def __main__():
       print('Content:\n',  article_content)
       print('Label:', label, '\n')
 
-  print('\n[Total] Before:', df.shape[0], ' After:', balanced.shape[0])
+  print('\n[Total] Before:', df.shape[0], ' After:', labeled.shape[0])
   print('')
   if args.verbose > 0:
     write_domain_frequency(domain_frequency)
     print('')
 
-  df = balanced
+  df = labeled
   del df['Type 1']
   del df['Type 2']
   del df['Type 3']
