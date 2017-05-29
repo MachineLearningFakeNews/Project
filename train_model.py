@@ -9,7 +9,7 @@ from sklearn import metrics
 from sklearn.naive_bayes import BernoulliNB, MultinomialNB
 from time import time
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-
+import matplotlib.pyplot as plt
 
 PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -48,8 +48,8 @@ def evaluate(clf, test_x, test_y):
 def analyze_svm(train_x, test_x, train_y, test_y):
   print ('Training SVM model with different C:')
 
-  C = [0.0001, 0.001, 0.01, 0.1, 1, 10]
-  # C = [0.0001, 0.001] # quick test
+  # C = [0.0001, 0.001, 0.01, 0.1, 1, 10]
+  C = [0.0001, 0.001] # quick test
   result = []
 
   for c_value in C:
@@ -66,6 +66,32 @@ def analyze_svm(train_x, test_x, train_y, test_y):
   # return:
   # model name, acc, f1, precision, recall
   # add returned value to a list and use this list to print (plain text or graph)
+
+def make_diagram(results):
+  indices = np.arange(len(results))
+  results = [[x[i] for x in results] for i in range(5)]
+  acc, f1, precision, recall, clf_names = results
+
+  # plt.figure(figsize = (12, 8))
+  
+  plt.title('Report')
+
+  # create plot
+  plt.barh(indices + .2,  acc, .2,        label = 'acc',  color = 'navy')  
+  plt.barh(indices + .4 , f1, .2,         label = 'f1',   color = 'c')
+  plt.barh(indices + .6,  precision, .2,  label = 'precision', color = 'darkorange')
+  plt.barh(indices + .8,  recall, .2,     label = 'recall', color = 'red')
+
+  plt.yticks(())
+  plt.legend(loc='best')
+  plt.subplots_adjust(left=.25)
+  plt.subplots_adjust(top=.95)
+  plt.subplots_adjust(bottom=.05)
+
+  for i, c in zip(indices, clf_names):
+      plt.text(-.2, i, c)
+
+  plt.show()
 
 
 if __name__ == '__main__':
@@ -85,3 +111,4 @@ if __name__ == '__main__':
     print ('recall: %.4f' % r[3])
     print ('----------------------------------------')
     
+  make_diagram(svm_result)
