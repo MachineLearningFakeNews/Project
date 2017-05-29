@@ -79,7 +79,7 @@ if __name__ == '__main__':
   svm_result = analyze_svm(train_x, test_x, train_y, test_y)
   for r in svm_result:
     print ('Model: ' + r[4])
-    print ('acc: %.4f' % [0])
+    print ('acc: %.4f' % r[0])
     print ('f1: %.4f' % r[1])
     print ('precision: %.4f' % r[2])
     print ('recall: %.4f' % r[3])
