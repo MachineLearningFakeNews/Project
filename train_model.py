@@ -23,14 +23,8 @@ def shuffle_split(x, y):
   x, y = shuffle(x, y, random_state=42)
   return train_test_split(x, y, test_size=0.2, random_state=42)
 
-def train(train_x, train_y):
-  clf = SVC(kernel='linear', C=2.8, probability = True, random_state = 0)
-  clf.fit(train_x, train_y.values.ravel())
-  return clf
-
-
 def train_svm(train_x, train_y, c_value):
-  clf = SVC(kernel='linear', C = c_value, probability = True, random_state = 0)
+  clf = SVC(kernel='linear', C = c_value, probability = True, random_state = 42)
   clf.fit(train_x, train_y.values.ravel())
   return clf
 
@@ -51,7 +45,7 @@ def evaluate(clf, test_x, test_y):
   return acc, f1, precision, recall
 
 
-def analyze_svm(train_x, train_y):
+def analyze_svm(train_x, test_x, train_y, test_y):
   print ('Training SVM model with different C:')
 
   C = [0.0001, 0.001, 0.01, 0.1, 1, 10]
@@ -82,11 +76,7 @@ if __name__ == '__main__':
 
   train_x, test_x, train_y, test_y = shuffle_split(train_x, train_y)
 
-  # clf = train(train_x, train_y)
-  # acc = evaluate(clf, test_x, test_y)
-  # print('Accuracy: %0.4f' % acc)
-
-  svm_result = analyze_svm(train_x, train_y)
+  svm_result = analyze_svm(train_x, test_x, train_y, test_y)
   for r in svm_result:
     print ('Model: ' + r[4])
     print ('acc: %.4f' % [0])
