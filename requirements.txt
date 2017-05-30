@@ -33,6 +33,7 @@ datashape==0.5.4
 decorator==4.0.11
 dill==0.2.5
 docutils==0.13.1
+en-core-web-sm==1.2.0
 et-xmlfile==1.0.1
 fastcache==1.0.2
 feedfinder2==0.0.4
@@ -89,6 +90,7 @@ olefile==0.44
 openpyxl==2.4.1
 pandas==0.19.2
 partd==0.3.7
+pathlib==1.0.1
 pathlib2==2.2.0
 patsy==0.4.1
 pep8==1.7.0
@@ -122,7 +124,7 @@ QtAwesome==0.4.3
 qtconsole==4.2.1
 QtPy==1.2.1
 redis==2.10.5
-regex==2017.4.29
+regex==2017.4.5
 requests==2.13.0
 requests-file==1.4.2
 rope-py3k==0.9.4.post1
@@ -145,6 +147,7 @@ tables==3.3.0
 tensorflow==1.1.0
 termcolor==1.1.0
 terminado==0.6
+texttable==0.9.0
 Theano==0.9.0
 thinc==6.5.2
 tldextract==2.1.0

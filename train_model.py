@@ -1,3 +1,4 @@
+import argparse
 import os
 import numpy as np
 import pandas as pd
@@ -9,17 +10,23 @@ from sklearn import metrics
 from sklearn.naive_bayes import MultinomialNB
 from time import time
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression, SGDClassifier
 from texttable import Texttable
 
 
+
 PATH = os.path.dirname(os.path.abspath(__file__))
 
+parser = argparse.ArgumentParser(description='Trains models and outputs results')
+parser.add_argument('--trainset', type=str, help='Trainset filepath', default='trainset.npz')
+parser.add_argument('--trainset_labels', type=str, help='Trainset Label CSV filepath', default='trainset_labels.csv')
+parser.add_argument('--verbose', type=int, help='Verbosity of output', default=2)
+args = parser.parse_args()
+
 def load_data():
-  loader = np.load(os.path.join(PATH, 'trainset.npz'))
+  loader = np.load(os.path.join(PATH, args.trainset))
   x = csr_matrix((  loader['data'], loader['indices'], loader['indptr']), shape = loader['shape'])
-  y = pd.read_csv(os.path.join(PATH, 'trainset_labels.csv'))
+  y = pd.read_csv(os.path.join(PATH, args.trainset_labels))
   return (x, y)
 
 def shuffle_split(x, y):
@@ -125,6 +132,7 @@ def make_diagram(results):
   results = [[x[i] for x in results] for i in range(5)]
   acc, f1, precision, recall, clf_names = results
 
+  import matplotlib.pyplot as plt
   plt.title('Report')
 
   # create plot
@@ -153,7 +161,7 @@ if __name__ == '__main__':
 
   train_x, test_x, train_y, test_y = shuffle_split(train_x, train_y)
 
-  svm_result = analyze_model(train_x, test_x, train_y, test_y, 'SVM')
+  # svm_result = analyze_model(train_x, test_x, train_y, test_y, 'SVM')
   nb_result = analyze_model(train_x, test_x, train_y, test_y, 'NB')
   lr_result = analyze_model(train_x, test_x, train_y, test_y, 'LR')
   sgd_result = analyze_model(train_x, test_x, train_y, test_y, 'SGD')
@@ -178,4 +186,6 @@ if __name__ == '__main__':
     t.add_rows([['Model', 'Acc', 'f1', 'Precision', 'Recall'], [r[4], r[0], r[1], r[2], r[3]]])
 
   print (t.draw())
-  make_diagram(all_result)
+  if args.verbose > 1:
+    print(args.plot)
+    make_diagram(all_result)
