@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn import metrics
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.externals import joblib
 from time import time
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.linear_model import LogisticRegression, SGDClassifier
@@ -20,6 +21,7 @@ PATH = os.path.dirname(os.path.abspath(__file__))
 parser = argparse.ArgumentParser(description='Trains models and outputs results')
 parser.add_argument('--trainset', type=str, help='Trainset filepath', default='trainset.npz')
 parser.add_argument('--trainset_labels', type=str, help='Trainset Label CSV filepath', default='trainset_labels.csv')
+parser.add_argument('--quick', action='store_true', help='Quick test for SVM')
 parser.add_argument('--verbose', type=int, help='Verbosity of output', default=2)
 args = parser.parse_args()
 
@@ -61,41 +63,6 @@ def evaluate(clf, test_x, test_y):
 
   return acc, f1, precision, recall
 
-
-def analyze_svm(train_x, test_x, train_y, test_y):
-  print ('Training SVM model with different C:')
-
-  # C = [0.0001, 0.001, 0.01, 0.1, 1, 10]
-  C = [2.8] # quick test
-  result = []
-
-  for c_value in C:
-    print ('C value: %f' % c_value)
-    clf = train_svm(train_x, train_y, c_value)
-    ret = evaluate(clf, test_x, test_y)
-    print ('----------------------------------------')
-
-    model_used = 'SVM, C: ' + str('%.6f' % c_value)
-    ret += model_used,
-    result.append(ret)
-  
-  return result
-  # return:
-  # model name, acc, f1, precision, recall
-  # add returned value to a list and use this list to print (plain text or graph)
-
-# def analyze_nb(train_x, test_x, train_y, test_y):
-#   result = []
-#   print ('Training Naive_Bayes model (MultinomialNB)')
-#   clf = train_NB(train_x, train_y)
-#   ret = evaluate(clf, test_x, test_y)
-#   model_used = 'MultinomialNB'
-#   ret += model_used,
-#   result.append(ret)
-#   return result
-
-
-
 def analyze_model(train_x, test_x, train_y, test_y, model_name):
   result = []
 
@@ -110,8 +77,12 @@ def analyze_model(train_x, test_x, train_y, test_y, model_name):
 
   else:
       print ('Training SVM model with different C:')
-      C = [0.0001, 0.001, 0.01, 0.1, 1, 10]
-      # C = [2.8] # quick test
+
+      if not args.quick:
+        C = [0.0001, 0.001, 0.01, 0.1, 1, 10]
+      else: 
+        C = [2.8] # quick test
+
       result = []
 
       for c_value in C:
@@ -161,7 +132,7 @@ if __name__ == '__main__':
 
   train_x, test_x, train_y, test_y = shuffle_split(train_x, train_y)
 
-  svm_result = analyze_svm(train_x, test_x, train_y, test_y)
+  svm_result = analyze_model(train_x, test_x, train_y, test_y, 'SVM')
   nb_result = analyze_model(train_x, test_x, train_y, test_y, 'NB')
   lr_result = analyze_model(train_x, test_x, train_y, test_y, 'LR')
   sgd_result = analyze_model(train_x, test_x, train_y, test_y, 'SGD')
@@ -172,20 +143,17 @@ if __name__ == '__main__':
   all_result += sgd_result
   all_result += svm_result
 
-  # print tabulate ([ r[4], r[0], r[1], r[2], r[3] ], headers=['Model', 'Acc', 'f1', 'Precision', 'Recall'])
-  
-  # make a table
+  # make a table and find best model
   t = Texttable()
+  best_acc = 0
   for r in all_result:
-    # print ('Model: ' + r[4])
-    # print ('acc: %.4f' % r[0])
-    # print ('f1: %.4f' % r[1])
-    # print ('precision: %.4f' % r[2])
-    # print ('recall: %.4f' % r[3])
-    # print ('----------------------------------------')
+    if best_acc < r[0]:
+      best_model = r[4]
     t.add_rows([['Model', 'Acc', 'f1', 'Precision', 'Recall'], [r[4], r[0], r[1], r[2], r[3]]])
 
   print (t.draw())
   if args.verbose > 1:
     print(args.plot)
     make_diagram(all_result)
+
+  joblib.dump(best_model, os.path.join(PATH, 'model.pkl'))

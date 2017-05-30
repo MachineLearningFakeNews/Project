@@ -33,7 +33,6 @@ datashape==0.5.4
 decorator==4.0.11
 dill==0.2.5
 docutils==0.13.1
-en-core-web-sm==1.2.0
 et-xmlfile==1.0.1
 fastcache==1.0.2
 feedfinder2==0.0.4
@@ -124,7 +123,7 @@ QtAwesome==0.4.3
 qtconsole==4.2.1
 QtPy==1.2.1
 redis==2.10.5
-regex==2017.4.5
+regex==2017.4.29
 requests==2.13.0
 requests-file==1.4.2
 rope-py3k==0.9.4.post1

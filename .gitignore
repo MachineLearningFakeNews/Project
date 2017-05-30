@@ -9,3 +9,4 @@ domain_frequency.csv
 trainset.npz
 trainset_labels.csv
 categorical_data
+model.pkl
