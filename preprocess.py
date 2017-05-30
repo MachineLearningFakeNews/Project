@@ -1,3 +1,4 @@
+import os
 import argparse
 import numpy as np
 import pandas as pd
@@ -19,13 +20,22 @@ UNUSED_SYMBOLS = ['[', ']', '(', ')', '_']
 PUNCTUATIONS = ' '.join(string.punctuation).split()
 entityRE = re.compile(r'<(.+)>')
 
-parser = argparse.ArgumentParser(description='Reads a CSV data set and preprocesses the content')
-parser.add_argument('-o', '--out', type=str, help='Preprocessed CSV filepath', default='dataset_preprocessed.csv')
-parser.add_argument('--data', type=str, help='Dataset CSV filepath', default='dataset.csv')
-parser.add_argument('--rows', type=int, help='Sample number of data rows to preprocess')
-parser.add_argument('--verbose', type=int, help='Enables verbosity of console output', default=1)
-parser.add_argument('--balanced_sample', type=bool, help='Balance the dataset by subsampling', default=False)
-args = parser.parse_args()
+PATH = os.path.dirname(os.path.abspath(__file__))
+
+class Defaults:
+  def __init__(self):
+    self.out = 'trainset.npz'
+    self.data = 'trainset_labels.csv'
+args = Defaults()
+
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser(description='Reads a CSV data set and preprocesses the content')
+  parser.add_argument('-o', '--out', type=str, help='Preprocessed CSV filepath', default=arg.out)
+  parser.add_argument('--data', type=str, help='Dataset CSV filepath', default=arg.data)
+  parser.add_argument('--rows', type=int, help='Sample number of data rows to preprocess')
+  parser.add_argument('--verbose', type=int, help='Enables verbosity of console output', default=1)
+  parser.add_argument('--balanced_sample', type=bool, help='Balance the dataset by subsampling', default=False)
+  args = parser.parse_args()
 
 def preprocess(content):
     # convert non-ASCII to ASCII equivalents. If none, drop them.
@@ -89,7 +99,7 @@ def label_data(df, first, cat1, cat2):
   return pd.concat([first, second])
 
 def __main__():
-  df = pd.read_csv(args.data)
+  df = pd.read_csv(os.path.join(PATH, args.data))
 
   if args.rows:
     df = df.sample(n=args.rows, random_state=42)

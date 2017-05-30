@@ -10,3 +10,4 @@ trainset.npz
 trainset_labels.csv
 categorical_data
 model.pkl
+vectorizer.pkl

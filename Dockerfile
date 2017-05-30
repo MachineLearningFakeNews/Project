@@ -8,4 +8,4 @@ RUN conda config --add channels conda-forge \
   && pip install -q -r requirements.txt \
   && pip install -q --ignore-installed regex \
   && python -m spacy download en
-CMD ["jupyter", "notebook", "--notebook-dir=/root/workspace/notebooks", "--ip='*'", "--port=8888", "--no-browser"]
+CMD ["jupyter", "notebook", "--notebook-dir=/root/workspace/jupyter_notebooks", "--ip='*'", "--port=8888", "--no-browser"]
