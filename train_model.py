@@ -28,7 +28,8 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='Trains models and outputs results')
   parser.add_argument('--trainset', type=str, help='Trainset filepath', default=args.trainset)
   parser.add_argument('--trainset_labels', type=str, help='Trainset Label CSV filepath', default=args.trainset_labels)
-  parser.add_argument('--quick', action='store_true', help='Quick test for SVM')
+  parser.add_argument('--quick', action='store_true', help='Train C=2.8 for SVM')
+  parser.add_argument('--skipsvm', action='store_true', help='Skip SVM train and eval')
   parser.add_argument('--verbose', type=int, help='Verbosity of output', default=2)
   args = parser.parse_args()
 
@@ -81,7 +82,6 @@ def analyze_model(train_x, test_x, train_y, test_y, model_name):
     ret += model_used,
     ret += clf,
     result.append(ret)
-    return result
 
   else:
       print ('Training SVM model with different C:')
@@ -90,8 +90,6 @@ def analyze_model(train_x, test_x, train_y, test_y, model_name):
         C = [0.0001, 0.001, 0.01, 0.1, 1, 10]
       else: 
         C = [2.8] # quick test
-
-      result = []
 
       for c_value in C:
         print ('C value: %f' % c_value)
@@ -104,7 +102,7 @@ def analyze_model(train_x, test_x, train_y, test_y, model_name):
         ret += clf,
         result.append(ret)
 
-        return result
+  return result
 
 
 def make_diagram(results):
@@ -141,7 +139,8 @@ if __name__ == '__main__':
 
   train_x, test_x, train_y, test_y = shuffle_split(train_x, train_y)
 
-  svm_result = analyze_model(train_x, test_x, train_y, test_y, 'SVM')
+  if not args.skipsvm:
+    svm_result = analyze_model(train_x, test_x, train_y, test_y, 'SVM')
   nb_result = analyze_model(train_x, test_x, train_y, test_y, 'NB')
   lr_result = analyze_model(train_x, test_x, train_y, test_y, 'LR')
   sgd_result = analyze_model(train_x, test_x, train_y, test_y, 'SGD')
@@ -150,7 +149,8 @@ if __name__ == '__main__':
   all_result += nb_result
   all_result += lr_result
   all_result += sgd_result
-  all_result += svm_result
+  if not args.skipsvm:
+    all_result += svm_result
 
   # make a table and find best model
   t = Texttable()
