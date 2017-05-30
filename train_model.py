@@ -162,7 +162,6 @@ if __name__ == '__main__':
 
   print (t.draw())
   if args.verbose > 1:
-    print(args.plot)
     make_diagram(all_result)
 
   joblib.dump(best_model, os.path.join(PATH, 'model.pkl'))

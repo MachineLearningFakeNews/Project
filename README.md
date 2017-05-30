@@ -33,3 +33,7 @@ python my_script.py
 ```sh
 docker run -it -p 8888:8888 -v <ABSOLUTE_PATH_TO_PROJECT>:/root/workspace -v <ABSOLUTE_PATH_TO_PROJECT>/jupyter_notebooks:/root/workspace/jupyter_notebooks fakenews_ml
 ```
+
+## Contributing
+
+[Trello board](https://trello.com/b/AXAFuqlV/fake-news-and-machine-learning)
