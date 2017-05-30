@@ -161,7 +161,7 @@ if __name__ == '__main__':
 
   train_x, test_x, train_y, test_y = shuffle_split(train_x, train_y)
 
-  svm_result = analyze_model(train_x, test_x, train_y, test_y, 'SVM')
+  svm_result = analyze_svm(train_x, test_x, train_y, test_y)
   nb_result = analyze_model(train_x, test_x, train_y, test_y, 'NB')
   lr_result = analyze_model(train_x, test_x, train_y, test_y, 'LR')
   sgd_result = analyze_model(train_x, test_x, train_y, test_y, 'SGD')
