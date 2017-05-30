@@ -25,16 +25,16 @@ PATH = os.path.dirname(os.path.abspath(__file__))
 class Defaults:
   def __init__(self):
     self.out = 'trainset.npz'
-    self.data = 'trainset_labels.csv'
+    self.data = 'dataset.csv'
 args = Defaults()
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='Reads a CSV data set and preprocesses the content')
-  parser.add_argument('-o', '--out', type=str, help='Preprocessed CSV filepath', default=arg.out)
-  parser.add_argument('--data', type=str, help='Dataset CSV filepath', default=arg.data)
+  parser.add_argument('-o', '--out', type=str, help='Preprocessed CSV filepath', default=args.out)
+  parser.add_argument('--data', type=str, help='Dataset CSV filepath', default=args.data)
   parser.add_argument('--rows', type=int, help='Sample number of data rows to preprocess')
   parser.add_argument('--verbose', type=int, help='Enables verbosity of console output', default=1)
-  parser.add_argument('--balanced_sample', type=bool, help='Balance the dataset by subsampling', default=False)
+  parser.add_argument('--balanced_sample', action='store_true', help='Balance the dataset by subsampling')
   args = parser.parse_args()
 
 def preprocess(content):
