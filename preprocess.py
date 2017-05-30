@@ -24,7 +24,7 @@ PATH = os.path.dirname(os.path.abspath(__file__))
 
 class Defaults:
   def __init__(self):
-    self.out = 'trainset.npz'
+    self.out = 'dataset_preprocessed.csv'
     self.data = 'dataset.csv'
 args = Defaults()
 
