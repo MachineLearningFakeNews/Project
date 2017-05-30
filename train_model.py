@@ -18,12 +18,19 @@ from texttable import Texttable
 
 PATH = os.path.dirname(os.path.abspath(__file__))
 
-parser = argparse.ArgumentParser(description='Trains models and outputs results')
-parser.add_argument('--trainset', type=str, help='Trainset filepath', default='trainset.npz')
-parser.add_argument('--trainset_labels', type=str, help='Trainset Label CSV filepath', default='trainset_labels.csv')
-parser.add_argument('--quick', action='store_true', help='Quick test for SVM')
-parser.add_argument('--verbose', type=int, help='Verbosity of output', default=2)
-args = parser.parse_args()
+class Defaults:
+  def __init__(self):
+    self.trainset = 'trainset.npz'
+    self.trainset_labels = 'trainset_labels.csv'
+args = Defaults()
+
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser(description='Trains models and outputs results')
+  parser.add_argument('--trainset', type=str, help='Trainset filepath', default=args.trainset)
+  parser.add_argument('--trainset_labels', type=str, help='Trainset Label CSV filepath', default=args.trainset_labels)
+  parser.add_argument('--quick', action='store_true', help='Quick test for SVM')
+  parser.add_argument('--verbose', type=int, help='Verbosity of output', default=2)
+  args = parser.parse_args()
 
 def load_data():
   loader = np.load(os.path.join(PATH, args.trainset))
@@ -72,6 +79,7 @@ def analyze_model(train_x, test_x, train_y, test_y, model_name):
     ret = evaluate(clf, test_x, test_y)
     model_used = model_name
     ret += model_used,
+    ret += clf,
     result.append(ret)
     return result
 
@@ -93,6 +101,7 @@ def analyze_model(train_x, test_x, train_y, test_y, model_name):
 
         model_used = 'SVM, C: ' + str('%.6f' % c_value)
         ret += model_used,
+        ret += clf,
         result.append(ret)
 
         return result
@@ -148,7 +157,7 @@ if __name__ == '__main__':
   best_acc = 0
   for r in all_result:
     if best_acc < r[0]:
-      best_model = r[4]
+      best_model = r[5]
     t.add_rows([['Model', 'Acc', 'f1', 'Precision', 'Recall'], [r[4], r[0], r[1], r[2], r[3]]])
 
   print (t.draw())
