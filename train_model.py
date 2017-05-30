@@ -103,8 +103,8 @@ def analyze_model(train_x, test_x, train_y, test_y, model_name):
 
   else:
       print ('Training SVM model with different C:')
-      # C = [0.0001, 0.001, 0.01, 0.1, 1, 10]
-      C = [2.8] # quick test
+      C = [0.0001, 0.001, 0.01, 0.1, 1, 10]
+      # C = [2.8] # quick test
       result = []
 
       for c_value in C:
@@ -153,7 +153,7 @@ if __name__ == '__main__':
 
   train_x, test_x, train_y, test_y = shuffle_split(train_x, train_y)
 
-  # svm_result = analyze_model(train_x, test_x, train_y, test_y, 'SVM')
+  svm_result = analyze_model(train_x, test_x, train_y, test_y, 'SVM')
   nb_result = analyze_model(train_x, test_x, train_y, test_y, 'NB')
   lr_result = analyze_model(train_x, test_x, train_y, test_y, 'LR')
   sgd_result = analyze_model(train_x, test_x, train_y, test_y, 'SGD')
@@ -162,6 +162,7 @@ if __name__ == '__main__':
   all_result += nb_result
   all_result += lr_result
   all_result += sgd_result
+  all_result += svm_result
 
   # print tabulate ([ r[4], r[0], r[1], r[2], r[3] ], headers=['Model', 'Acc', 'f1', 'Precision', 'Recall'])
   
