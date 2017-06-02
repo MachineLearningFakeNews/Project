@@ -2,6 +2,14 @@
 
 Classifies articles into two categories: reliable (non bias political, credible) or unreliable. We scrapped articles from ([OpenSources](http://www.opensources.co/)).
 
+## Links
+
+- [Final Report](https://drive.google.com/open?id=1PEd8e-9McCLDi3pBlo6kLcMEnKwWqjKxLV-kzc58gAA)
+
+- [Slides](https://drive.google.com/open?id=1_WGbkFeD_sVvtIYzw80kmq4aIhjU8JvdFEOQwzJaJe0)
+
+- [Data](https://www.dropbox.com/s/rx2rv8po8raj58k/dataset_models.zip?dl=0)
+
 ## Docker Environment
 
 ### Build Docker Image
